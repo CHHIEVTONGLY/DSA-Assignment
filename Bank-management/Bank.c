@@ -6,7 +6,7 @@
 
 
 typedef struct{
-	char username[20];
+	char username[30];
 	char email[40];
 	char phoneNumber[12];
 	char password[20];
@@ -115,7 +115,7 @@ void bankLoan() {
         printf("%d\t$%.2f\n", month, remainingLoanAmount);
     }
 }
-    Data inputData(void){
+    Data inputData(){
 	Data items;
 	printf("Input username     :");
     fgets(items.username, sizeof(items.username), stdin);
@@ -127,17 +127,13 @@ void bankLoan() {
     fgets(items.password, sizeof(items.password), stdin);
 	return items;
 }
-void output(Data items){
-	printf("Username    :%s\n",items.username);
-	printf("Email       :%s\n",items.email);
-	printf("Phone number:%s\n",items.phoneNumber);
-}
 
 void createAccount() {
     int n, i;
     FILE *create_acc; // Declare file pointer locally
     printf("Input user :");
     scanf("%d", &n);
+	getchar(); 
     create_acc = fopen("createAccount.txt", "w"); // Open file for writing
     Data user[20];
     if (create_acc == NULL) {
@@ -163,6 +159,7 @@ void loginAccount(){
 	Data login;
 	FILE *create_acc; // Declare file pointer locally
 	create_acc=fopen("createAccount.txt","r");
+	getchar();
 	printf("Input username     :");
     fgets(username, sizeof(username), stdin); //input data by using fgets (name of struct data , size of data , input)
 	printf("Input email        :");
