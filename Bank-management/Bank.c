@@ -1,6 +1,8 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include<stdbool.h>
+
 
 typedef struct{
 	char username[20];
@@ -9,6 +11,48 @@ typedef struct{
 	char password[20];
 	
 } Data;
+
+typedef struct{
+	int money_dollars;
+    int money_reils;
+	int user_money_dollars;
+	int user_money_reils; 
+	
+} money;
+
+float readBalance(){
+	FILE *file = fopen("User Money_dollars.txt", "r");
+	float balance ; 
+	fscanf(file , "%f", &balance); 
+	fclose(file);
+	return balance;
+}
+
+
+void writeBalance(float new_balance) {
+	FILE *file = fopen("User Money_dollars.txt", "w");
+    fprintf(file, "%.2f", new_balance); // Assuming balance is a float, "%.2f" is used to write only two decimal places
+    fclose(file);
+}
+
+void deposits(float amount) {
+    float balance = readBalance();
+    balance += amount; // Add the deposited amount to the balance
+    writeBalance(balance);
+    printf("Deposit of %.2f $ completed.\nNew balance: %.2f $\n", amount, balance);
+}
+
+void withdraw(float amount) {
+    float balance = readBalance();
+    if (amount <= balance) {
+        balance -= amount; // Subtract the withdrawn amount from the balance
+        writeBalance(balance);
+        printf("Withdrawal of %.2f $ completed. New balance: %.2f $\n", amount, balance);
+    } else {
+        printf("Insufficient funds!\n");
+    }
+}
+
     Data inputData(void){
 	Data items;
 	printf("Input username     :");
@@ -22,16 +66,219 @@ typedef struct{
 	return items;
 }
 void output(Data items){
-	printf("username    :%s\n",items.username);
-	printf("email       :%s\n",items.email);
-	printf("phone number:%s\n",items.phoneNumber);
-	// printf("password    :%s\n",items.password);
+	printf("Username    :%s\n",items.username);
+	printf("Email       :%s\n",items.email);
+	printf("Phone number:%s\n",items.phoneNumber);
 }
+
+void createAccount() {
+    int n, i;
+    FILE *create_acc; // Declare file pointer locally
+    printf("Input user :");
+    scanf("%d", &n);
+    create_acc = fopen("createAccount.txt", "w"); // Open file for writing
+    Data user[20];
+    if (create_acc == NULL) {
+        printf("Error!");
+    }
+    for (i = 0; i < n; i++) {
+        printf("========== User[%d] ========== \n", i + 1);
+        user[i] = inputData();
+    }
+
+    for (i = 0; i < n; i++) {
+        fwrite(&user[i], sizeof(Data), 1, create_acc); // Write each object to file
+    }
+    fclose(create_acc);
+}
+void loginAccount(){
+	bool logins=false;
+	int op;
+	char username[20];
+	char email[40];
+	char phoneNumber[12];
+	char password[20];
+	Data login;
+	FILE *create_acc; // Declare file pointer locally
+	create_acc=fopen("createAccount.txt","r");
+	printf("Input username     :");
+    fgets(username, sizeof(username), stdin); //input data by using fgets (name of struct data , size of data , input)
+	printf("Input email        :");
+	fgets(email, sizeof(email), stdin);
+	printf("Input phone number :");
+	fgets(phoneNumber, sizeof(phoneNumber), stdin);
+	printf("Input password     :");
+	fgets(password, sizeof(password), stdin);
+	while (fread(&login, sizeof(login),1, create_acc)) {
+		if(strcmp(username,login.username)==0){
+		    if(strcmp(email,login.email)==0){
+		        if(strcmp(phoneNumber,login.phoneNumber)==0){
+		        	if(strcmp(password,login.password)==0){
+		        		logins=true;
+						system("clear");
+					}
+				}
+			}
+						
+		} 
+	}
+	if(strcmp(username,login.username)!=0){
+		printf("Incorrect username\n");
+	}
+	if(strcmp(email,login.email)!=0){
+		printf("Incorrect email\n");
+	}
+	if(strcmp(phoneNumber,login.phoneNumber)!=0){
+		printf("Incorrect phone number\n");
+	}
+	if(strcmp(password,login.password)!=0){
+		printf("Incorrect password\n");
+	}
+	if(logins==true){
+			
+			do{
+				printf("\n=============== MENU ===============\n\n");
+				printf("1. Deposit money\n");
+				printf("2. Withdraw money\n");
+				printf("0. Exit\n");
+				printf("\n====================================\n\n");
+				printf("Option : ");
+				scanf("%d",&op); 
+				switch(op){
+					
+					case 1:{
+						
+						int op;
+						do{
+							
+							printf("\n=============== Deposit menu =============\n");
+							printf("1. Deposit dollars\n");
+							printf("2. Deposit reils\n");
+						    printf("3. Exit\n");
+							printf("\n==========================================\n\n");
+							printf("Option : ");
+							scanf("%d",&op); 
+							
+							switch(op){
+								
+								case 1:{							
+									float deposit ; 
+									printf("Amount of money want to deposit : ");
+									scanf("%f" , &deposit);
+									deposits(deposit);
+									readBalance();				
+														
+									break;
+								}
+								case 2:{
+									float withdrawAmount ; 
+									printf("Amount of money want to withdraw : ");
+									scanf("%f" , &withdrawAmount);
+									withdraw(withdrawAmount);
+									readBalance();	
+									
+									break;
+								}
+								default :{
+									printf("Invalid option");
+									break;
+								}
+									
+							}
+							
+						}while(op!=3);				
+					}break;
+					
+					
+					case 2:{
+						
+						int op_withDraw;
+						do{
+						
+							printf("\n======= Withdraw option =======\n\n");
+							printf("1. Withdraw USD currency\n");
+							printf("2. Withdraw Reils currency \n");
+							printf("3. Exit\n");
+							printf("\n==============================\n");
+							printf("Choose option :");
+							scanf("%d",&op_withDraw);
+							
+							switch(op_withDraw){
+								
+								case 1:{
+									
+									FILE *money_d;
+									money withdraw;
+									money_d = fopen("User Money_dollars.txt","r+");
+									fscanf(money_d, "%d",&withdraw.user_money_dollars);
+								    printf("Amount of USD in your bank account : %d $\n",withdraw.user_money_dollars);
+								    if((money_d = fopen("User Money_dollars.txt","r")) != NULL){
+									    printf("===== Withdraw USD =====\n");
+										money_d = fopen("User Money_dollars.txt","a+");
+										printf("Input USD to withdraw : ");
+                                        scanf("%d",&withdraw.money_dollars);
+							            withdraw.user_money_dollars -= withdraw.money_dollars;							            
+							            printf("After withdraw : %d $\n",withdraw.user_money_dollars);
+									    money_d = fopen("User Money_dollars.txt","w");
+							            fprintf(money_d,"%d",withdraw.user_money_dollars);
+							            
+								    } else {
+								        printf("Null \n");
+								    }
+								    
+									fclose(money_d);
+													
+									break;
+								}
+								
+								case 2:{
+									
+									FILE *money_r;
+									money withdraw;
+									money_r = fopen("User Money_reils.txt","r+");
+									fscanf(money_r, "%d",&withdraw.user_money_reils);					    
+								    printf("Money reils account : %d\n",withdraw.user_money_reils);
+									
+								    if((money_r = fopen("User Money_reils.txt","r")) != NULL){
+								    	printf("===== Withdraw riels =====\n");
+								    	money_r=fopen("User Money_reils.txt","a+");
+								    	printf("Input money reils to withdraw : ");
+                                        scanf("%d", &withdraw.money_reils);
+					                	withdraw.user_money_reils -= withdraw.money_reils;					            
+					                	printf("Sucessfully withdraw : %d\n",withdraw.user_money_reils);
+					                	fprintf(money_r,"%d",withdraw.user_money_reils);
+								        
+								    } else {
+								        printf("Null reils\n");
+								    }
+								    
+									fclose(money_r);
+									
+									break;
+								}
+								default :{
+									printf("Invalid option");
+									break;
+								}
+								
+							}
+							
+						}while(op_withDraw!=3);
+								
+					}break;
+					
+					
+					case 3:{
+								
+					}break;
+				}	
+			}while(op!=0);
+		}
+		fclose(create_acc);
+}
+
 int main(){
-	int option;
-	FILE *account_data;
-	int n,i;
-	do{
+		int option;
 	    printf("\n\n\n");
 	    printf("\033[0;36m \t ########     ###    ##    ## ##    ##    ##     ##    ###    ##    ##    ###     ######   ######## ##     ## ######## ##    ## ######## \033[0m\n");
 	    printf("\033[0;36m \t ##     ##   ## ##   ###   ## ##   ##     ###   ###   ## ##   ###   ##   ## ##   ##    ##  ##       ###   ### ##       ###   ##    ##    \033[0m\n");
@@ -41,48 +288,21 @@ int main(){
 	    printf("\033[0;36m \t ##     ## ##     ## ##   ### ##   ##     ##     ## ##     ## ##   ### ##     ## ##    ##  ##       ##     ## ##       ##   ###    ##    \033[0m\n");
 	    printf("\033[0;36m \t ########  ##     ## ##    ## ##    ##    ##     ## ##     ## ##    ## ##     ##  ######   ######## ##     ## ######## ##    ##    ##    \033[0m\n");
 	    printf("\n\n\n");
-	    printf("1. Create Acoount \n");
+	do{
+		printf("\n=============== MENU =============\n");
+	    printf("\n1. Create Acoount \n");
 	    printf("2. Login Account\n");
-	    printf("Option [0] to exits : ");
+	    printf("\n====================================\n");
+	    printf("Option : ");
 	    scanf("%d" , &option); 
-
-        while (getchar() != '\n'); //Clear input buffer
-
     	switch(option){
     		case 1:{
-			   	printf("Input user :");
-                scanf("%d",&n);
-                
-                while (getchar() != '\n');  // Clear input buffer
-                
-				account_data=fopen("account_data.txt","w");
-				Data user[20];
-				if(account_data==NULL){
-					printf("Error!");
-					return 0;
-				}
-				for(i=0;i<n;i++){
-					printf("========>User[%d]<===========\n",i+1);
-					user[i]=inputData();
-				}
-			
-				for (i = 0; i < n; i++) {
-			        fwrite(&user[i], sizeof(Data), 1, account_data); // Write each object to file
-			    }
-				fclose(account_data);
-				account_data=fopen("account_data.txt","r");
-                
-				Data temp;
-			    while (fread(&temp, sizeof(temp), 1, account_data)) {
-			        output(temp);
-			    }
-			
+			   createAccount();
 			}break;
 			case 2:{
-				
-				
+				loginAccount();
 			}break;
 		}
-	}while(option != 0);
+	}while(option!=0);
 	return 0;
 }
