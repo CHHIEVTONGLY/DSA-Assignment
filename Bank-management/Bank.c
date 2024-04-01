@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include<string.h>
 #include<stdbool.h>
+#include <math.h>
 
 
 typedef struct{
@@ -53,6 +54,67 @@ void withdraw(float amount) {
     }
 }
 
+void bankLoan() {
+    float loanAmount, monthlyPayment, interestRate , totalPayment;
+    int loanTerm;
+
+    // Prompt user for loan details
+    printf("Loan interest rate details : \n\n");
+    printf("%-30s%-20s\n", "Loan Amount", "Interest rate");
+	printf("--------------------------------------------\n");
+    printf("%-30s%-20s\n", "Loans up to $10,000", "5%");
+    printf("%-30s%-20s\n", "Loans up to $50,000", "4%");
+    printf("%-30s%-20s\n", "Loans up to $100,000", "3.5%");
+    printf("%-30s%-20s\n", "Loans up to $500,000", "3%");
+    printf("%-30s%-20s\n", "Loans greater than $500,000", "2%");
+	printf("--------------------------------------------\n");
+
+
+    printf("Loan amount: $");
+    scanf("%f", &loanAmount);
+
+	if (loanAmount <= 10000) {
+        interestRate = 0.05; // 5% interest rate for loans up to $10,000
+    } else if (loanAmount <= 50000) {
+        interestRate = 0.04; // 4% interest rate for loans up to $50,000
+    } else if (loanAmount <= 100000) {
+        interestRate = 0.035; // 3.5% interest rate for loans up to $100,000
+    } else if (loanAmount <= 500000){
+		interestRate = 0.03; //3% interest rate for loans up to $500000
+	}else {
+        interestRate = 0.02; // 3% interest rate for loans greater than $500000
+    }
+
+    printf("Loan term (months): ");
+    scanf("%d", &loanTerm);
+
+    // Convert annual interest rate to monthly
+    float monthlyInterestRate = interestRate / 12.0;
+
+    // Calculate monthly payment
+    monthlyPayment = (loanAmount * monthlyInterestRate) / (1 - pow(1 + monthlyInterestRate, -loanTerm));
+
+	totalPayment = monthlyPayment * loanTerm;
+
+    // Display loan details
+    printf("\nLoan Details:\n");
+    printf("Loan Amount: $%.2f\n", loanAmount);
+    printf("Interest Rate: %.2f%%\n", interestRate);
+    printf("Loan Term: %d months\n", loanTerm);
+    printf("Monthly Payment: $%.2f\n", monthlyPayment);
+	printf("Loan amount including interest rate : $ %.2f\n\n" , totalPayment);
+
+    // Simulate loan repayment
+    float remainingLoanAmount = loanAmount;
+    printf("\nLoan Repayment Schedule:\n");
+    printf("Month\tRemaining Amount\n");
+    for (int month = 1; month <= loanTerm; month++) {
+        float interestPayment = remainingLoanAmount * monthlyInterestRate;
+        float principalPayment = monthlyPayment - interestPayment;
+        remainingLoanAmount -= principalPayment;
+        printf("%d\t$%.2f\n", month, remainingLoanAmount);
+    }
+}
     Data inputData(void){
 	Data items;
 	printf("Input username     :");
@@ -292,17 +354,24 @@ int main(){
 		printf("\n=============== MENU =============\n");
 	    printf("\n1. Create Acoount \n");
 	    printf("2. Login Account\n");
+	    printf("3. Bank loan\n");
 	    printf("\n====================================\n");
 	    printf("Option : ");
 	    scanf("%d" , &option); 
     	switch(option){
     		case 1:{
 			   createAccount();
-			}break;
+			   break;
+			};
 			case 2:{
 				loginAccount();
-			}break;
+				break;
+			};
+			case 3: {
+				bankLoan();
+				break;
+			}
 		}
 	}while(option!=0);
 	return 0;
-}
+}	
