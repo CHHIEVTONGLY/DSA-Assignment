@@ -3,6 +3,7 @@
 #include<string.h>
 #include<stdbool.h>
 #include <math.h>
+#include <unistd.h>
 
 
 typedef struct{
@@ -29,7 +30,19 @@ float readBalance(){
 	return balance;
 }
 
+float readBalanceRiels(){
+	FILE *file = fopen("UserMoneyRiels.txt", "r");
+	float balance ; 
+	fscanf(file , "%f", &balance); 
+	fclose(file);
+	return balance;
+}
 
+void writeBalanceRiels(float new_balance) {
+	FILE *file = fopen("UserMoneyRiels.txt", "w");
+    fprintf(file, "%.2f", new_balance); // Assuming balance is a float, "%.2f" is used to write only two decimal places
+    fclose(file);
+}
 void writeBalance(float new_balance) {
 	FILE *file = fopen("User Money_dollars.txt", "w");
     fprintf(file, "%.2f", new_balance); // Assuming balance is a float, "%.2f" is used to write only two decimal places
@@ -52,6 +65,25 @@ void withdraw(float amount) {
     } else {
         printf("Insufficient funds!\n");
     }
+}
+
+void depositsRiels(float amount) {
+    float balance = readBalanceRiels();
+    balance += amount; 
+    writeBalanceRiels(balance);
+    printf("Deposit of %.2f Riels completed.\nNew balance: %.2f Riels\n", amount, balance);
+}
+
+void withdrawiels(float amount) {
+    float balance = readBalanceRiels();
+    if (amount <= balance) {
+        balance -= amount;
+        writeBalanceRiels(balance);
+        printf("Withdrawal of %.2f Riels completed. New balance: %.2f Riels\n", amount, balance);
+    } else {
+        printf("Insufficient funds!\n");
+    }
+
 }
 
 void bankLoan() {
@@ -129,26 +161,21 @@ void bankLoan() {
 }
 
 void createAccount() {
-    int n, i;
     FILE *create_acc; // Declare file pointer locally
-    printf("Input user :");
-    scanf("%d", &n);
 	getchar(); 
     create_acc = fopen("createAccount.txt", "w"); // Open file for writing
     Data user[20];
     if (create_acc == NULL) {
         printf("Error!");
     }
-    for (i = 0; i < n; i++) {
-        printf("========== User[%d] ========== \n", i + 1);
-        user[i] = inputData();
-    }
+	printf("========== User register ========== \n");
+	user[0] = inputData();
 
-    for (i = 0; i < n; i++) {
-        fwrite(&user[i], sizeof(Data), 1, create_acc); // Write each object to file
-    }
+	fwrite(&user[0] , sizeof(Data) , 1, create_acc);
+
     fclose(create_acc);
 }
+
 void loginAccount(){
 	bool logins=false;
 	int op;
@@ -211,8 +238,8 @@ void loginAccount(){
 						do{
 							
 							printf("\n=============== Deposit menu =============\n");
-							printf("1. Deposit dollars\n");
-							printf("2. Deposit reils\n");
+							printf("1. Deposit USD currency\n");
+							printf("2. Deposit reils currency\n");
 						    printf("3. Exit\n");
 							printf("\n==========================================\n\n");
 							printf("Option : ");
@@ -222,20 +249,32 @@ void loginAccount(){
 								
 								case 1:{							
 									float deposit ; 
+									FILE *money_d;
+									money withdraw;
+									money_d = fopen("User Money_dollars.txt","r+");
+									fscanf(money_d, "%d",&withdraw.user_money_dollars);
+								    printf("Amount of USD in your bank account : %d $\n",withdraw.user_money_dollars);
 									printf("Amount of money want to deposit : ");
 									scanf("%f" , &deposit);
 									deposits(deposit);
-									readBalance();				
-														
+									readBalance();	
+									sleep(3);			
+									system("clear");		
 									break;
 								}
 								case 2:{
-									float withdrawAmount ; 
-									printf("Amount of money want to withdraw : ");
-									scanf("%f" , &withdrawAmount);
-									withdraw(withdrawAmount);
-									readBalance();	
-									
+									float depositRiel ; 
+									FILE *money_riels ; 
+									money withdraw ; 
+									money_riels = fopen("UserMoneyRiels.txt", "r");
+									fscanf(money_riels , "%d" , &withdraw.user_money_reils);
+									printf("Amount of Riels in your bank account : %d ៛\n" ,withdraw.user_money_reils );
+									printf("Amount of money want to deposit : ");
+									scanf("%f" , &depositRiel);
+									depositsRiels(depositRiel);
+									readBalanceRiels();
+									sleep(3);	
+									system("clear");
 									break;
 								}
 								default :{
@@ -280,39 +319,41 @@ void loginAccount(){
 							            printf("After withdraw : %d $\n",withdraw.user_money_dollars);
 									    money_d = fopen("User Money_dollars.txt","w");
 							            fprintf(money_d,"%d",withdraw.user_money_dollars);
+
 							            
 								    } else {
 								        printf("Null \n");
 								    }
 								    
 									fclose(money_d);
+									sleep(3);	
+									system("clear");
 													
 									break;
 								}
 								
 								case 2:{
-									
-									FILE *money_r;
-									money withdraw;
-									money_r = fopen("User Money_reils.txt","r+");
-									fscanf(money_r, "%d",&withdraw.user_money_reils);					    
-								    printf("Money reils account : %d\n",withdraw.user_money_reils);
-									
-								    if((money_r = fopen("User Money_reils.txt","r")) != NULL){
-								    	printf("===== Withdraw riels =====\n");
-								    	money_r=fopen("User Money_reils.txt","a+");
-								    	printf("Input money reils to withdraw : ");
-                                        scanf("%d", &withdraw.money_reils);
-					                	withdraw.user_money_reils -= withdraw.money_reils;					            
-					                	printf("Sucessfully withdraw : %d\n",withdraw.user_money_reils);
-					                	fprintf(money_r,"%d",withdraw.user_money_reils);
-								        
-								    } else {
-								        printf("Null reils\n");
-								    }
-								    
-									fclose(money_r);
-									
+									FILE *money_riels ; 
+									money withdraw ; 
+									money_riels = fopen("UserMoneyRiels.txt", "r");
+									fscanf(money_riels , "%d" , &withdraw.user_money_reils);
+									printf("Amount of Riels in your bank account : %d ៛\n" ,withdraw.user_money_reils );
+									if((money_riels = fopen("UserMoneyRiels.txt", "r")) != NULL ){
+										printf("===== Withdraw riels (៛) ===== \n");
+										money_riels = fopen("UserMoneyRiels.txt", "a+");
+										printf("Input amount to withdraw : ");
+										scanf("%d" , &withdraw.money_reils);
+										withdraw.user_money_reils -= withdraw.money_reils;
+										printf("After withdraw : %d ៛ \n" , withdraw.user_money_reils);
+										money_riels = fopen("UserMoneyRiels.txt", "w");
+										fprintf(money_riels , "%d" , withdraw.user_money_reils);
+									}else {
+										printf("Null \n");
+									}
+
+									fclose(money_riels);
+									sleep(3);	
+									system("clear");
 									break;
 								}
 								default :{
@@ -323,11 +364,6 @@ void loginAccount(){
 							}
 							
 						}while(op_withDraw!=3);
-								
-					}break;
-					
-					
-					case 3:{
 								
 					}break;
 				}	
